@@ -1,10 +1,9 @@
 install.packages("readxl")
 
-main <- function(fileWithNames) {
-  fileWithNames %>% 
-    filter(regexpr(',', fileWithNames$NM_COMPLET_PFPJ) > 0)
-  
-  fileWithNames$first_name <- substring(fileWithNames$NM_COMPLET_PFPJ, 1, regexpr(' ', fileWithNames$NM_COMPLET_PFPJ) - 1)
+main <- function(fileWithNames, colWithNames) {
+  #fileWithNames <- fileWithNames[regexpr(',', fileWithNames[,colWithNames]) > 0,]
+
+  fileWithNames$first_name <- substring(fileWithNames[,colWithNames], 1, regexpr(' ', fileWithNames[,colWithNames]) - 1)
   
   fileWithNames$first_name <- tolower(fileWithNames$first_name)
   
@@ -13,12 +12,14 @@ main <- function(fileWithNames) {
   fileWithNames$first_name <- gsub('[iìíîï]', 'i', fileWithNames$first_name)
   fileWithNames$first_name <- gsub('[oòóôöõø]', 'o', fileWithNames$first_name)
   fileWithNames$first_name <- gsub('[uùúûü]', 'u', fileWithNames$first_name)
-  
-  nomes_censo_f <- read_excel('Brasil_total fem masc.xlsx', sheet = 2)
-  nomes_censo_m <- read_excel('Brasil_total fem masc.xlsx', sheet = 3)
-  
+
   fileWithNames$first_name <- toupper(fileWithNames$first_name)
   
+return(fileWithNames)
+
+  nomes_censo_f <- read_excel('Brasil_total fem masc.xlsx', sheet = 2)
+  nomes_censo_m <- read_excel('Brasil_total fem masc.xlsx', sheet = 3)
+
   fileWithNames <- merge(x = fileWithNames, y = nomes_censo_f, by.x = 'first_name', by.y = 'nome', all.x = TRUE)
   fileWithNames <- merge(x = fileWithNames, y = nomes_censo_m, by.x = 'first_name', by.y = 'nome', all.x = TRUE)
   

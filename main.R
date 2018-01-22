@@ -1,14 +1,22 @@
 library(shiny)
+library(shiny)
+
+source("dataHandler.R")
 
 ui <- fluidPage(
   fluidRow(
-    headerPanel('Lorem Ipsum')
+    headerPanel('Um metodo para atribuir automaticamente genero a uma lista de nomes proprios brasileiros.')
   ),
   fluidRow(
     column(12,
-           p('Lorem ipsum dolor sit amet, consectetur adipiscing elit. Ut sem dolor, tempus in tincidunt vitae, imperdiet cursus sem. Vestibulum accumsan sapien sem, in sollicitudin leo venenatis ac. Aenean lorem neque, laoreet at pellentesque id, sodales et odio. Maecenas ut rhoncus neque. Etiam tristique magna ac neque ultrices, sed posuere ante fermentum. Nulla eget quam libero. Nam laoreet, tortor id rutrum posuere, leo ex tempor felis, at sollicitudin tellus eros quis sem.'),
-           p('Aliquam et blandit turpis. Duis sodales massa eget leo laoreet, at consectetur mi auctor. In mollis ipsum ultricies consequat bibendum. Nullam vel metus a arcu viverra lobortis. Vestibulum a ipsum quis elit maximus facilisis nec ut turpis. In pellentesque in turpis eget condimentum. Maecenas sed risus sed dui posuere pharetra. Ut finibus viverra tempor. Proin nisl massa, placerat sit amet tempus vitae, efficitur sed arcu. Nam elementum vehicula nibh.')
-    )),
+           h4('Como determinar o genero de um nome proprio?'),
+           p('Em pesquisas que precisamos determinar o genero dos nomes proprios das observacoes, as vezes, dispomos apenas de uma lista de nomes proprios, sem a declaracao de genero.'),
+           p('Poderiamos utilizar a ultima letra do nome? Nomes terminados em "a" na lingua brasileira sao sempre femininos? Isso e verdade para Ana e Adriana, por exemplo, mas temos os nomes Batista e Evangelista que sao geralmente masculinos. O mesmo ocorre com a letra "o", geralmente masculina, mas encontrada nos nomes femininos como Amparo, Carmo e Socorro. Ao tentar utilizar a ultima letra do nome encontraremos a letra "e" presente nos nomes masculinos Andre e Jose e tambem nos femininos Isabele e Tatiane. Seguindo nesse metodo, identificaremos os nomes terminados em "r" e "s" que, da mesma forma, podem ser atribuidos aos dois generos como: Guiomar e Gilmar, Marcos e Lourdes.'),
+           p('O ideal seria dispormos de uma lista de nomes proprios com o genero socialmente atribuido ao nome. O IBGE disponibilizou os dados do censo de 2010 com a frequencia de registros de nascimento por nome.'),
+           h4('Metodo'),
+           p('Esse projeto visa estabelecer um metodo estatistico de atribuicao de genero utilizando a lista de frequencia de registros de nascimento disponibilizada pelo IBGE no sistema de dados abertos do Governo Federal.'),
+           p('Apos fazer o upload do arquivo com o nomes e necessario informar qual coluna contem os nomes. Em seguida o script ira determinar, para cada observacao, que o nome proprio e o conjunto de caracteres do inicio do texto ate o primeiro caractere espaco encontrado. Depois, a informacao de frequencia de resgistro do censo de 2010 sera relacionada ao nome e, por ultimo, sera atribuido o genero com base no maior numero de ocorrencias de registros.')
+           )),
   fluidRow(
     fileInput('fileWithNames', label = 'Escolha o arquivo', buttonLabel = 'Procurar', placeholder = 'Nenhum arquivo selecionado',
               accept = c(
@@ -24,22 +32,41 @@ ui <- fluidPage(
   ),
   fluidRow(
     checkboxInput('firstRowIsHeader', 'Primeira linha do arquivo contem cabecalhos de coluna.', TRUE),
-    selectInput('columnName', 'Coluna que contem os nomes', 'bla')
+    uiOutput('columnName'),
+    downloadButton('download', 'Baixar dados')
   )
 )
 
 server <- function(input, output)
 {
-  output$tableFileHeadContents <- renderTable({
-
+  fileContent <- reactive({
     inFile <- input$fileWithNames
     
-    if (is.null(inFile))
+    if (is.null(inFile)) {
       return(NULL)
+    }
     
-    fileContent <- read.csv(inFile$datapath, header = input$firstRowIsHeader)
+    read.csv(inFile$datapath, header = input$firstRowIsHeader)
+  })
 
-    head(fileContent)
+  output$tableFileHeadContents <- renderTable({
+    if (is.null(fileContent())) {
+      return()
+    }
+    if (input$columnWithNames == 'Selecione') {
+      return(head(fileContent()))
+    }
+    head(main(fileContent(), input$columnWithNames))
+  })
+  
+  output$columnName <- renderUI({
+    if (is.null(fileContent())) {
+      data <- c('Faca upload do arquivo.')
+    } else {
+      data <- as.list(c('Selecione', colnames(fileContent())))
+    }
+
+    selectInput('columnWithNames', 'Informe a coluna que contem os nomes', choices = data)
   })
 }
 

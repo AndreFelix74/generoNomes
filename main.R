@@ -1,5 +1,5 @@
 library(shiny)
-library(shiny)
+library(readxl)
 
 source("dataHandler.R")
 
@@ -10,7 +10,7 @@ ui <- fluidPage(
   fluidRow(
     column(12,
            h4('Como determinar o genero de um nome proprio?'),
-           p('Em pesquisas que precisamos determinar o genero dos nomes proprios das observacoes, as vezes, dispomos apenas de uma lista de nomes proprios, sem a declaracao de genero.'),
+           p('Em pesquisas que precisamos determinar o genero de cada observacao, as vezes, dispomos apenas de uma lista de nomes proprios, sem a declaracao de genero.'),
            p('Poderiamos utilizar a ultima letra do nome? Nomes terminados em "a" na lingua brasileira sao sempre femininos? Isso e verdade para Ana e Adriana, por exemplo, mas temos os nomes Batista e Evangelista que sao geralmente masculinos. O mesmo ocorre com a letra "o", geralmente masculina, mas encontrada nos nomes femininos como Amparo, Carmo e Socorro. Ao tentar utilizar a ultima letra do nome encontraremos a letra "e" presente nos nomes masculinos Andre e Jose e tambem nos femininos Isabele e Tatiane. Seguindo nesse metodo, identificaremos os nomes terminados em "r" e "s" que, da mesma forma, podem ser atribuidos aos dois generos como: Guiomar e Gilmar, Marcos e Lourdes.'),
            p('O ideal seria dispormos de uma lista de nomes proprios com o genero socialmente atribuido ao nome. O IBGE disponibilizou os dados do censo de 2010 com a frequencia de registros de nascimento por nome.'),
            h4('Metodo'),
@@ -28,12 +28,12 @@ ui <- fluidPage(
               )
     )),
   fluidRow(
-    tableOutput('tableFileHeadContents')
-  ),
-  fluidRow(
     checkboxInput('firstRowIsHeader', 'Primeira linha do arquivo contem cabecalhos de coluna.', TRUE),
     uiOutput('columnName'),
     downloadButton('download', 'Baixar dados')
+  ),
+  fluidRow(
+    tableOutput('tableFileHeadContents')
   )
 )
 

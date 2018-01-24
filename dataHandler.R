@@ -3,7 +3,9 @@
 main <- function(fileWithNames, colWithNames) {
   #fileWithNames <- fileWithNames[regexpr(',', fileWithNames[,colWithNames]) > 0,]
 
-  fileWithNames$first_name <- substring(fileWithNames[,colWithNames], 1, regexpr(' ', fileWithNames[,colWithNames]) - 1)
+  fileWithNames$first_name <- substring(fileWithNames[,colWithNames], 1, ifelse(regexpr(' ', fileWithNames[,colWithNames]) > 1, 
+                                                                                regexpr(' ', fileWithNames[,colWithNames]) - 1,
+                                                                                length(fileWithNames[,colWithNames])))
   
   fileWithNames$first_name <- tolower(fileWithNames$first_name)
   

@@ -3,6 +3,8 @@ library(readxl)
 
 source("dataHandler.R")
 
+options(shiny.maxRequestSize = 16*1024^2)
+
 ui <- fluidPage(
   fluidRow(
     headerPanel('Um metodo para atribuir automaticamente genero a uma lista de nomes proprios brasileiros')

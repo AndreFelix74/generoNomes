@@ -1,9 +1,9 @@
 #fileWithNames <- read.csv('C:/Users/Andre.Felix/Downloads/inventoras (1).csv')
 #colWithNames <- 4
-main <- function(fileWithNames, colWithNames) {
+generoNomes <- function(fileWithNames, colWithNames) {
   #fileWithNames <- fileWithNames[regexpr(',', fileWithNames[,colWithNames]) > 0,]
 
-  fileWithNames$first_name <- substring(fileWithNames[,colWithNames], 1, ifelse(regexpr(' ', fileWithNames[,colWithNames]) > 1, 
+  fileWithNames$first_name <- substring(fileWithNames[,colWithNames], 1, ifelse(regexpr(' ', fileWithNames[,colWithNames]) > 1,
                                                                                 regexpr(' ', fileWithNames[,colWithNames]) - 1,
                                                                                 length(fileWithNames[,colWithNames])))
   
@@ -37,6 +37,8 @@ main <- function(fileWithNames, colWithNames) {
   #fileWithNames$freq_f <- NULL
   #fileWithNames$freq_m <- NULL
   #fileWithNames$first_name <- NULL
+
+  names(fileWithNames)[names(fileWithNames) == 'first_name'] <- 'Primeiro Nome'
 
   fileWithNames
 }

@@ -73,7 +73,7 @@ server <- function(input, output)
       listFileName <- unzip(inFile$datapath, list = TRUE)
       strFileName <- listFileName$Name[1]
       unzip(inFile$datapath, strFileName, exdir = dirname(inFile$datapath))
-      strFilePath <- paste0(dirname(inFile$datapath), '\\', strFileName)
+      strFilePath <- paste0(dirname(inFile$datapath), '/', strFileName)
     } else {
       strFilePath <- inFile$datapath
     }
@@ -104,10 +104,13 @@ server <- function(input, output)
   })
 
   output$download <- downloadHandler(
+    # o download so funciona se a aplicacao for aberta no navegador. nao funciona no navegador do R Studio.
+    # On a Unix-alike, the default for zip will by default use the value of R_ZIPCMD, which is set in 'etc/Renviron' if an unzip command was found during configuration.
+    # On Windows, the default relies on a zip program (for example that from Rtools) being in the path.
     filename = 'generoNomes.zip',
     content = function(file) {
       strCSVFileName <- paste0(tempdir(), '/', 'generoNomes.csv')
-      write.csv(generoNomes(fileContent(), input$columnWithNames), strCSVFileName)
+      write.csv2(generoNomes(fileContent(), input$columnWithNames), strCSVFileName, row.names = F)
       zip(zipfile = file, files = strCSVFileName)
     }
   )

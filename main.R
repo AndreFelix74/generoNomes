@@ -37,12 +37,9 @@ ui <- fluidPage(
            h4('Processamento'),
            selectInput('userEncoding', 'Informe o enconding do arquivo', choices = c('UTF-8', 'ISO-8859-1')),
            checkboxInput('zipFile', 'Arquivo no formato zip', FALSE),
+           radioButtons("fieldsSeparator", "Separator", choices = c(Virgula = ",", Ponto_e_virgula = ";", Tabulacao = "\t"), selected = ","),
            fileInput('fileWithNames', label = 'Escolha o arquivo - maximo 16Mb', buttonLabel = 'Procurar', placeholder = 'Nenhum arquivo selecionado',
                   accept = c(
-                    'text/csv',
-                    'text/comma-separated-values',
-                    'text/tab-separated-values',
-                    'text/plain',
                     '.csv',
                     '.zip'
                   )
@@ -78,7 +75,15 @@ server <- function(input, output)
       strFilePath <- inFile$datapath
     }
 
-    read.csv(strFilePath, header = input$firstRowIsHeader, encoding = input$userEncoding)
+    tryCatch(
+      {
+        read.csv(strFilePath, header = input$firstRowIsHeader,
+                 sep = input$fieldsSeparator, encoding = input$userEncoding)
+      },
+      error = function(e) {
+        stop(safeError(e))
+      }
+    )
   })
 
   output$tableFileHeadContents <- renderTable({
